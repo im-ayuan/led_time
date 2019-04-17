@@ -1,0 +1,129 @@
+C51 COMPILER V9.00   KEY                                                                   08/19/2014 19:44:31 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE KEY
+OBJECT MODULE PLACED IN key.OBJ
+COMPILER INVOKED BY: D:\Program Files\keil\C51\BIN\C51.EXE key.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include<stc12c5a60s2.h>//添加头文件
+   2          #include<intrins.h>
+   3          #include "MEUN.h"
+   4          #include "KEY.h"
+   5          #include "delay.h"
+   6          
+   7          
+   8          uchar flag;
+   9          uchar mod;
+  10          uchar num;
+  11          uchar k2;
+  12          
+  13          
+  14          void key_meun(void);
+  15          void key_2(void);
+  16          void key_mod(void);
+  17          void key_num(void);
+  18          
+  19          void key_meun(void)
+  20          {
+  21   1              key1=1;
+  22   1              _nop_();
+  23   1              _nop_();
+  24   1              _nop_();
+  25   1              _nop_();
+  26   1              _nop_();
+  27   1              if(key1==0)
+  28   1          {
+  29   2                      display_meun(flag);
+  30   2                      if(key1==0)
+  31   2                      { 
+  32   3                              while(!key1)
+  33   3                              {
+  34   4                                      display_meun(flag);
+  35   4                              }
+  36   3                              flag++;
+  37   3                              flag=flag%4;
+  38   3                      }
+  39   2              }
+  40   1      }
+  41          
+  42          void key_2(void)
+  43          {
+  44   1      
+  45   1              key2=1;
+  46   1              _nop_();
+  47   1              _nop_();
+  48   1              _nop_();
+  49   1              _nop_();
+  50   1              _nop_();
+  51   1              if(key2==0)
+  52   1          {
+  53   2                      delayms(10);
+  54   2                      if(key2==0)
+  55   2                      { 
+C51 COMPILER V9.00   KEY                                                                   08/19/2014 19:44:31 PAGE 2   
+
+  56   3                              while(!key2);
+  57   3                              delayms(10);
+  58   3                              while(!key2);
+  59   3                              k2=1;
+  60   3                      }
+  61   2              }       
+  62   1      }
+  63          void key_mod(void)
+  64          {
+  65   1              key1=1;
+  66   1              _nop_();
+  67   1              _nop_();
+  68   1              _nop_();
+  69   1              _nop_();
+  70   1              _nop_();
+  71   1              if(key1==0)
+  72   1          {
+  73   2                      delayms(10);
+  74   2                      if(key1==0)
+  75   2                      { 
+  76   3                              while(!key1);
+  77   3                              delayms(10);
+  78   3                              while(!key1);
+  79   3                              mod++;
+  80   3                              if(mod==2)mod=0;
+  81   3                      }
+  82   2              }
+  83   1      }
+  84          
+  85          void key_num(void)
+  86          {
+  87   1              key1=1;
+  88   1              _nop_();
+  89   1              _nop_();
+  90   1              _nop_();
+  91   1              _nop_();
+  92   1              _nop_();
+  93   1              if(key1==0)
+  94   1          {
+  95   2                      delayms(10);
+  96   2                      if(key1==0)
+  97   2                      { 
+  98   3                              while(!key1);
+  99   3                              delayms(5);
+ 100   3                              while(!key1);
+ 101   3                              num++;  
+ 102   3                      }
+ 103   2              }
+ 104   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    139    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

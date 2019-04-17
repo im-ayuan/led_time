@@ -1,0 +1,156 @@
+C51 COMPILER V9.00   IR                                                                    08/19/2014 19:44:31 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE IR
+OBJECT MODULE PLACED IN IR.OBJ
+COMPILER INVOKED BY: D:\Program Files\keil\C51\BIN\C51.EXE IR.C BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <stc12c5a60s2.h>//Ìí¼ÓÍ·ÎÄ¼þ
+   2          #include "ir.h"
+   3          #include "key.h"
+   4          #define uchar unsigned char
+   5          #define uint unsigned int
+   6          
+   7          
+   8          uchar irtime;     //¶¨Ê±Æ÷ÖÐ¶Ï´ÎÊý   
+   9          uchar start;      //ºìÍâ½ÓÊÕ¿ªÊ¼±êÖ¾Î»
+  10          uchar xdata irdata[33];   //´æ´¢  ºìÍâÖÐ¶ÏÊ±¼ä
+  11          uchar ircode[4]={0x11,0x11,0x11,0x11};    //´æ´¢°´¼üÂë
+  12          uchar bitnum;                                                     //ÓÃÓÚ±ê¼Ç irdataµÄµÚi¸ö ÔªËØ
+  13          uchar irok;                                                               //ºìÍâ½ÓÊÕÍê³É±êÖ¾
+  14          uchar irprosok;                                                   //ºìÍâ×ª»¯Íê³É±êÖ¾
+  15          
+  16                   
+  17          void Timer1Init(void);                  //³õÊ¼»¯¶¨Ê±Æ÷
+  18          void Int0Init(void);                    //³õÊ¼»¯Íâ²¿ÖÐ¶Ï
+  19          void irpros(void);                              //×ª»¯º¯Êý
+  20          void ir(void);
+  21          
+  22          
+  23                  
+  24          
+  25          void Timer1Init(void)           //100Î¢Ãë@22.1184MHz
+  26          {
+  27   1              AUXR &= 0xBF;           //¶¨Ê±Æ÷Ê±ÖÓ12TÄ£Ê½
+  28   1              TMOD &= 0x0F;           //ÉèÖÃ¶¨Ê±Æ÷Ä£Ê½
+  29   1              TMOD |= 0x20;           //ÉèÖÃ¶¨Ê±Æ÷Ä£Ê½
+  30   1              TL1 = 0x48;             //ÉèÖÃ¶¨Ê±³õÖµ
+  31   1              TH1 = 0x48;             //ÉèÖÃ¶¨Ê±ÖØÔØÖµ
+  32   1              TF1 = 0;                //Çå³ýTF1±êÖ¾
+  33   1              TR1 = 1;                //¶¨Ê±Æ÷1¿ªÊ¼¼ÆÊ±
+  34   1              ET1=1;                   //Æô¶¯¶¨Ê±Æ÷1ÖÐ¶Ï
+  35   1              EA=1;                    //´ò¿ª×ÜÖÐ¶Ï¿ª¹Ø
+  36   1      
+  37   1      }
+  38          
+  39          void int0init(void)                     //Íâ²¿ÖÐ¶Ï ³õÊ¼»¯
+  40          {
+  41   1              IT0=1;                           //ÏÂ½µÑØ´¥·¢
+  42   1              EX0=1;                           //´ò¿ªÍâ²¿ÖÐ¶Ï0
+  43   1              EA=1;   
+  44   1      }
+  45          
+  46          
+  47          
+  48          void ir(void)              
+  49          {               
+  50   1                      EX0=1;          //´ò¿ªÍâ²¿ÖÐ¶Ï
+  51   1                      if(irok==1)                //ÅÐ¶ÏÊÇ·ñ½ÓÊÜÍê³É
+  52   1                      {
+  53   2                              irpros();          //Èô½ÓÊÕÍê³É£¬Ö´ÐÐ×ª»¯º¯Êý
+  54   2                              irok=0;
+  55   2                      }
+C51 COMPILER V9.00   IR                                                                    08/19/2014 19:44:31 PAGE 2   
+
+  56   1                      if(irprosok==1)                   //ÅÐ¶Ï×ª»¯ÊÇ·ñÍê³É
+  57   1                      {       
+  58   2                              irprosok=0;                     //Ê¹ÓÃÍê°´¼üÂëÖ®ºó½«×ª»¯Íê³É±ê¼ÇÇå¿Õ£¬·½±ãÏÂ´ÎÊ¹ÓÃ                                                              //Èô²»Çå¿Õ£¬ºóÃæµÄ°´¼üÂë¶¼»á±»É
+             -áÆú  ÒòÎª²»»áÖ´ÐÐ×ª»¯º¯Êý
+  59   2                      }
+  60   1      }
+  61          
+  62          
+  63          
+  64          
+  65          void timer1 () interrupt 3
+  66          {
+  67   1              irtime++;                //¶¨Ê±Æ÷ÖÐ¶Ï£¬ÖÐ¶ÏÒ»´Î¾ÍÊÇ100us
+  68   1      }
+  69          
+  70          
+  71          
+  72          
+  73          void irpros(void)
+  74          {
+  75   1              uchar i,j,k,value;
+  76   1              k=1;
+  77   1              for(j=0;j<4;j++)                //Ñ­»·4´Î£¬Ã¿´ÎÒ»¸öÂë
+  78   1              {
+  79   2                      for(i=0;i<8;i++)
+  80   2                      {
+  81   3                              value=value>>1;
+  82   3                              if(irdata[k]>15)   //Ê±¼ä´óÓÚ1500us  ¾ÍÊÇÊý¾Ý1£¬Ð¡ÓÚ¾ÍÊÇ0  £¨0ÊÇ1125us£¬1ÊÇ2250us£©
+  83   3                              {
+  84   4                                      value=value | 0x80;     
+  85   4                              }
+  86   3                      
+  87   3                              k++;
+  88   3                      }
+  89   2                      ircode[j]=value;   //½«°´¼üÂë´æÈëÊý×é
+  90   2              }
+  91   1              irprosok=1;     //×ª»¯Íê³É
+  92   1              EX0=1;          //´ò¿ªÍâ²¿ÖÐ¶Ï
+  93   1      }
+  94          
+  95          
+  96          void int0 () interrupt 0         
+  97          {
+  98   1      
+  99   1                      if(start==1)
+ 100   1                      {
+ 101   2                              if(irtime>80)     //ÅÐ¶ÏÊÇ·ñÊÇ  9MSµÄÒýµ¼Âë 
+ 102   2              
+ 103   2                              {
+ 104   3                                      bitnum=0;
+ 105   3                              }
+ 106   2                              irdata[bitnum]=irtime;  //½«Á½´ÎÖÐ¶ÏÖ®¼äµÄÊ±¼ä¼ä¸ô´æÈëÊý×é  
+ 107   2                              irtime=0;                //ÇåÁã¶¨Ê±Æ÷ÖÐ¶Ï´ÎÊý
+ 108   2                              bitnum++;
+ 109   2                              if(bitnum==33)
+ 110   2                              {
+ 111   3                                      bitnum=0;
+ 112   3                                      start=0;   //Çå³ý½ÓÊÕ¿ªÊ¼±êÖ¾
+ 113   3                                      irok=1;    //±ê¼Ç ½ÓÊÜÍê³É
+ 114   3                                      EX0=0;  //¹Ø±ÕÍâ²¿ÖÐ¶Ï0  ÒòÎªÒ£¿ØÆ÷°´ÏÂÊ±ÊÇÁ¬Ðø·¢ËÍµÄ£¬
+ 115   3                                                      //ÕâÊ±ÒÑ¾­½ÓÊÜÍê³É¡£ËùÒÔÒª¹Ø±ÕÍâ²¿ÖÐ¶Ï  ·ÀÖ¹ÔÚÖ´ÐÐ×ª»¯Ê±ÊÜµ½¸ÉÈÅ
+ 116   3                              }
+C51 COMPILER V9.00   IR                                                                    08/19/2014 19:44:31 PAGE 3   
+
+ 117   2                              
+ 118   2                      }
+ 119   1                      else
+ 120   1                      {
+ 121   2                              start=1;        //µÚÒ»´Î½øÈëÖÐ¶Ï £¬´ò¿ª½ÓÊÕ±ê¼Ç ²¢½«¶¨ Ê±Æ÷ÖÐ¶Ï´ÎÊý ÇåÁã£¬
+ 122   2                                                 //ÏÂÒ»´Î½øÈëÊ±  ¾ÍÖ´ÐÐÉÏÃæ¸öIFµÄº¯Êý
+ 123   2                              irtime=0;
+ 124   2                      }               
+ 125   1      }
+ 126          
+ 127          
+ 128          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    182    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     33    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      9    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

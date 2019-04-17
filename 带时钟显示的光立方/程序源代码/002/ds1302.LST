@@ -1,0 +1,226 @@
+C51 COMPILER V9.00   DS1302                                                                08/19/2014 19:44:31 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE DS1302
+OBJECT MODULE PLACED IN ds1302.OBJ
+COMPILER INVOKED BY: D:\Program Files\keil\C51\BIN\C51.EXE ds1302.C BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1                   /*       
+   2          --------------------------------------------------------
+   3          2014年7月1日19:29:37
+   4                          程序功能：
+   5                                          光立方读取ds1302时间程序
+   6          
+   7          说明：本程序参考了天狼星51教程，大部分内容一职于教学视频，经过本人小部分修改
+   8          
+   9          --------------------------------------------------------
+  10          */
+  11          #include<stc12c5a60s2.h>//添加头文件
+  12          #include<intrins.h>
+  13          #include "ds1302.h"
+  14          
+  15          
+  16                                            //年周月日 时分秒
+  17          uchar time_set[7]={14,4,7,10,12,0,0};//设置初始时间
+  18          
+  19          uchar now[7];
+  20          
+  21          uchar code write_add[7]={0x8c,0x8a,0x88,0x86,0x84,0x82,0x80};
+  22          uchar code read_add[7]={0x8d,0x8b,0x89,0x87,0x85,0x83,0x81};
+  23          
+  24          void write_ds1302_byte(uchar dat);
+  25          void write_ds1302(uchar add,uchar dat);
+  26          uchar read_ds1302(uchar add);
+  27          void set_rtc(void);
+  28          void read_rtc(void);
+  29          
+  30          
+  31          
+  32          void delay1s(void);
+  33          
+  34          void DS1302_Initial();
+  35          
+  36          
+  37          void delay10us(void);   //误差 -0.008318865741us
+  38          void delay6us(void);     //10nop        
+  39          void delay4us(void);             //5nop
+  40          
+  41          
+  42          
+  43          
+  44          void write_ds1302_byte(uchar dat)
+  45          {
+  46   1              uchar i;
+  47   1              for(i=0;i<8;i++)
+  48   1              {
+  49   2               
+  50   2                      delay4us();
+  51   2                      io=dat&0x01;
+  52   2                      dat=dat>>1;
+  53   2                      sck=1;
+  54   2                      delay4us();
+  55   2                      sck=0;
+C51 COMPILER V9.00   DS1302                                                                08/19/2014 19:44:31 PAGE 2   
+
+  56   2                      delay4us();     
+  57   2              }
+  58   1      }
+  59          
+  60          
+  61          void write_ds1302(uchar add,uchar dat)
+  62          {
+  63   1              rst=0;
+  64   1              delay6us();     
+  65   1              sck=0;
+  66   1              delay6us();
+  67   1              rst=1;
+  68   1              delay6us();
+  69   1              write_ds1302_byte(add);
+  70   1              write_ds1302_byte(dat);
+  71   1              rst=0;
+  72   1              delay6us();
+  73   1              io=1;
+  74   1              sck=1;
+  75   1      }
+  76          
+  77          
+  78          
+  79          uchar read_ds1302(uchar add)
+  80          {
+  81   1              uchar i,value=0x00;
+  82   1              rst=0;
+  83   1              delay6us();     
+  84   1              sck=0;
+  85   1              delay6us();
+  86   1              rst=1;
+  87   1              io=1;
+  88   1              delay6us();
+  89   1              write_ds1302_byte(add);
+  90   1              for(i=0;i<8;i++)
+  91   1              {
+  92   2                      value=value>>1;
+  93   2                      sck=0;
+  94   2                      
+  95   2                      if(io==1)value=value|0x80;
+  96   2                              else _nop_();
+  97   2                      sck=1;
+  98   2                      delay4us();
+  99   2              }
+ 100   1              rst=0;
+ 101   1              delay6us();
+ 102   1              sck=0;
+ 103   1              delay6us();
+ 104   1              sck=1;
+ 105   1              io=1;
+ 106   1              return value;
+ 107   1      }
+ 108             
+ 109          
+ 110          void set_rtc()
+ 111          {
+ 112   1              uchar i;
+ 113   1              write_ds1302(0x8e,0x00);//去除写保护
+ 114   1              for(i=0;i<7;i++)
+ 115   1              {
+ 116   2                      write_ds1302(write_add[i],time_set[i]); 
+ 117   2              }
+C51 COMPILER V9.00   DS1302                                                                08/19/2014 19:44:31 PAGE 3   
+
+ 118   1      
+ 119   1              write_ds1302(0x8e,0x80);
+ 120   1      
+ 121   1      }                
+ 122          
+ 123          void read_rtc()
+ 124          {
+ 125   1              uchar i;
+ 126   1              for(i=0;i<7;i++)
+ 127   1              {
+ 128   2              now[i]=read_ds1302(read_add[i]);        
+ 129   2              }
+ 130   1      
+ 131   1      }
+ 132          
+ 133          /**********************************************************************
+ 134          延时函数
+ 135          
+ 136          
+ 137          *********************************************************************/
+ 138          
+ 139          
+ 140          
+ 141          void delay6us(void)   //误差 -0.032118055556us
+ 142          {
+ 143   1         _nop_();
+ 144   1         _nop_();
+ 145   1         _nop_();
+ 146   1         _nop_();
+ 147   1         _nop_();
+ 148   1         _nop_();
+ 149   1         _nop_();
+ 150   1         _nop_();
+ 151   1      }
+ 152          
+ 153          
+ 154          void delay4us(void)   //误差 -0.021412037037us
+ 155          {
+ 156   1         _nop_();
+ 157   1         _nop_();
+ 158   1         _nop_();
+ 159   1         _nop_();
+ 160   1         _nop_();
+ 161   1      }
+ 162          
+ 163          
+ 164           /*
+ 165          
+ 166          void delay1s(void)   //误差 -0.000000000125us
+ 167          {
+ 168              unsigned char a,b,c,n;
+ 169              for(c=169;c>0;c--)
+ 170                  for(b=228;b>0;b--)
+ 171                      for(a=142;a>0;a--);
+ 172              for(n=5;n>0;n--);
+ 173              _nop_();  //if Keil,require use intrins.h
+ 174          }
+ 175                           
+ 176          
+ 177          void delay10us(void)   //误差 -0.008318865741us
+ 178          {
+ 179              unsigned char a;
+C51 COMPILER V9.00   DS1302                                                                08/19/2014 19:44:31 PAGE 4   
+
+ 180              for(a=52;a>0;a--);
+ 181              _nop_();  //if Keil,require use intrins.h
+ 182          }                 */
+ 183          
+ 184          /**********************************************************************
+ 185          延时函数
+ 186          
+ 187          
+ 188          *********************************************************************/
+ 189          
+ 190          void DS1302_Initial()    
+ 191          {
+ 192   1          rst = 0;
+ 193   1          sck = 0;
+ 194   1              io=1;
+ 195   1              delay6us();
+ 196   1      }
+ 197                   
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    253    ----
+   CONSTANT SIZE    =     14    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     14       9
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,11 @@
+"STARTUP.obj",
+"delay.obj",
+"ds1302.obj",
+"IR.obj",
+"key.obj",
+"main.obj",
+"meun.obj",
+"TIME.obj",
+"video.obj" 
+TO "002" 
+RAMSIZE(256) 
